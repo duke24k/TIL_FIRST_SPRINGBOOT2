@@ -112,7 +112,30 @@ OAuth2에서 제공하는 승인 타입은 총 4가지 입니다.
 
 **SocialType**
 ```java
+package com.web.domain.enums;
 
+public enum SocialType {
+    FACEBOOK("facebook"),
+    GOOGLE("google"),
+    KAKAO("kakao");
+
+    private final String ROLE_PREFIX = "ROLE_";
+    private String name;
+
+    SocialType(String name){
+        this.name = name;
+    }
+
+    public String getRoleType(){
+        return ROLE_PREFIX + name.toUpperCase();
+    }
+
+    public String getValue(){return name;}
+
+    public boolean isEquals(String authority){
+        return this.getRoleType().equals(authority);
+    }
+}
 ```
 
 ## 2.1. 소 주제
