@@ -275,7 +275,11 @@ test {
 4. 인증 동작 확인하기  
 5. 페이지 권한 분리하기  
 
-카카오 : 0a7ca146321bc1d63285c916ab12134c
+페이스북 ID : 564162601158748
+PW: dd56c82cf93b958f1d00e30b355df0c2
+구글 ID : 531083614299-40lvfkln6kmihd62igmag5551ook21bo.apps.googleusercontent.com   
+pw: Q0sFH7FeoZKfbx910iTIpNmm     
+카카오 : 0a7ca146321bc1d63285c916ab12134c     
 
 ## 4.1. SNS 프로퍼티 설정 및 바인딩  
 소셜 미디어 연동을 위해 필요한 기본적인 프로퍼티 정보는 다음과 같습니다.  
@@ -322,11 +326,6 @@ kakao:
     userAuthorizationUri: https://kauth.kakao.com/oauth/authorize
     resource:
       userInfoUri: https://kapi.kakao.com/v1/user/me
-```
-
-**/resouces/application.yml**   
-```yml
-
 ```
 
 
