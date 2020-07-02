@@ -290,6 +290,40 @@ test {
 YAML 파일에 저장하여 사용하면 정보를 매핑하기 훨씬 수월합니다.     
 각 소셜 미디어로부터 발급받은 ```clientId``` 와 ```clientSecret```은 개인마다 고유한 값입니다.     
 
+**형식**
+```yml
+facebook:
+  client:
+    clientId: <your-client-id>
+    clientSecret: <your-secret>
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth?display=popup
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+    scope: email
+  resource:
+    userInfoUri: https://graph.facebook.com/me?fileds=id,name,email,link
+    
+google :
+  client :
+    clientId : <your-client>
+    clientSecret: <your-secret>
+    accessTokenUri: https://accounts.google.com/o/oauth2/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    scope: email, profile
+  resource:
+    userInfoUri: https://www.googleapis.com/oauth2/v2/userinfo
+
+kakao:
+  client:
+    clientId: <your-client-id>
+    accessTokenUri: https://kauth.kakao.com/oauth/token
+    userAuthorizationUri: https://kauth.kakao.com/oauth/authorize
+    resource:
+      userInfoUri: https://kapi.kakao.com/v1/user/me
+```
+
 **/resouces/application.yml**   
 ```yml
 
