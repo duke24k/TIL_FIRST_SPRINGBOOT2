@@ -353,8 +353,109 @@ ___
     
 **ClientResources**    
 ```java
+package com.web.oauth;
 
+import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
+
+public class ClientResources {
+
+    @NestedConfigurationProperty
+    private AuthorizationCodeResourceDetails client =
+            new AuthorizationCodeResourceDetails();
+
+    @NestedConfigurationProperty
+    private ResourceServerProperties resource = new ResourceServerProperties();
+
+    public AuthorizationCodeResourceDetails getClient() {
+        return client;
+    }
+
+    public ResourceServerProperties getResource() {
+        return resource;
+    }
+
+    // 위에 두개는 @Getter 를 사용해도 될 것 같다.
+
+}
 ```
+위 클래스는 각 소셜 미디어의 client 와 resource 프로퍼티 값을 매핑한다.    
+
+```java
+    @NestedConfigurationProperty
+```
+```@NestedConfigurationProperty``` 는 해당 필드가 단일값이 아닌 중복으로 바인딩된다고 표시하는 어노테이션입니다.   
+소셜 미디어 3곳의 프로퍼티를 각각 바인딩하므로 ```@NestedConfigurationProperty``` 붙여줍시다.   
+          
+```java
+    @NestedConfigurationProperty
+    private AuthorizationCodeResourceDetails client =
+            new AuthorizationCodeResourceDetails();
+```
+```
+    clientId: 
+    clientSecret: 
+    accessTokenUri: 
+    userAuthorizationUri: 
+    tokenName:
+    authenticationScheme:
+    clientAuthenticationScheme:
+    scope:
+```   
+```AuthorizationCodeResourceDetails``` 객체는 ```client:```프로퍼티를 기준으로 하위의 키/값을 매핑합니다.      
+즉 해당 객체 안에는 위와 같은 값들을 저장할 수 있는 필드(변수) 들이 존재합니다.        
+     
+```java
+    @NestedConfigurationProperty
+    private ResourceServerProperties resource = new ResourceServerProperties();
+```
+```
+resource:
+      userInfoUri:
+```    
+```ResourceServerProperties``` 객체는 원래 OAuth2 리소스값을 매핑하는 데 사용하지만          
+여기서는 ```userInfoUri:``` 밖에 없으니 회원 정보를 얻는 ```userInfoUri```값을 받는데 사용했습니다.      
+    
+___
+     
+```SecurityConfig.java``` 에 각 소셜 미디어의 프로퍼티값을 호출하는 빈을 등록하겠습니다.   
+
+**SecurityConfig**
+```java
+package com.web.config;
+
+import com.web.oauth.ClientResources;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    @ConfigurationProperties("facebook")
+    public ClientResources facebook() {
+        return new ClientResources();
+    }
+
+    @Bean
+    @ConfigurationProperties("google")
+    public ClientResources google() {
+        return new ClientResources();
+    }
+
+    @Bean
+    @ConfigurationProperties("kakao")
+    public ClientResources kakao() {
+        return new ClientResources();
+    }
+
+}
+```
+소셜 미디어 리소스 정보는 시큐리티 설정에서 사용하기 때문에 빈으로 등록했고    
+3개의 소셜 미디어 프로퍼티를 ```@ConfigurationProperties``` 어노테이션에 접두사를 사용하여 바인딩 했습니다.   
+만약 ```@ConfigurationProperties``` 어노테이션이 없었다면 일일이 프로퍼티값을 불러와야 했습니다.   
 
 
 
