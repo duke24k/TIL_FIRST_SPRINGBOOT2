@@ -617,6 +617,7 @@ package com.web.config;
 
 import com.web.domain.enums.SocialType;
 import com.web.oauth.ClientResources;
+import com.web.oauth.UserTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
