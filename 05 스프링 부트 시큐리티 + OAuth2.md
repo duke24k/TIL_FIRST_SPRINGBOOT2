@@ -592,10 +592,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 인증의 진입 지점입니다.   
 인증되지 않은 사용자가 허용되지 않은 경로로 리퀘스트를 요청할 경우 ```/login```으로 이동됩니다.      
 * ```.formLogin().successForwardUrl("/board/list") :``` 로그인에 성공하면 설정된 경로로 포워딩합니다.    
-* ```.logout() :``` 로그아웃에 대한 설정을 할 수 있습니다.
-코드에서는 로그아웃이 수행될 ```URL(logoutUrl)```,    
-로그아웃이 성공했을 때 포워딩할 ```URL(logoutSuccessUrl)```,    
-로그아웃을 성공했을 때 삭제될 쿠키값```(deleteCookies)```,   
+* ```.logout() :``` 로그아웃에 대한 설정을 할 수 있습니다.     
+코드에서는 로그아웃이 수행될 ```URL(logoutUrl)```,      
+로그아웃이 성공했을 때 포워딩할 ```URL(logoutSuccessUrl)```,      
+로그아웃을 성공했을 때 삭제될 쿠키값```(deleteCookies)```,         
+설정된 세션의 무효화```(invalidateHttpSession)```을 수행하게끔 설정되어있습니다.        
+* ```.addFilterBefore(filter, 먼저 시작될 필터) :``` 첫 번째 인자보다 먼저 시작될 필터를 등록합니다.    
+	* ```.addFilterBefore(filter, CsrfFilter.class) :```    
+	문자 인코딩 필터(```filter```) 보다 ```CsrfFilter```를 먼저 실행하도록 설정합니다.    
+
 
 
 
