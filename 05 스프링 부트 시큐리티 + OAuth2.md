@@ -460,3 +460,21 @@ public class SecurityConfig {
 이해가 안되면 아래 url 을 통해 복습하자!!   
 https://github.com/kwj1270/TIL_FIRST_SPRINGBOOT2/blob/master/02%20%EC%8A%A4%ED%94%84%EB%A7%81%EB%B6%80%ED%8A%B8%20%ED%99%98%EA%B2%BD%20%EC%84%A4%EC%A0%95.md#44-configurationproperties-%EC%82%B4%ED%8E%B4%EB%B3%B4%EA%B8%B0
 
+
+## 4.2. 시큐리티 + OAuth2 설정하기    
+시큐리티 OAuth2를 설정하겠습니다.   
+시큐리티 부분을 먼저 설정하고 OAuth2를 적용시킬 **필터를 시큐리티 설정에 추가하겠습니다.**       
+시큐리티 OAuth2 간의 연관된 설정에 유의해서 살펴보기 바랍니다.       
+    
+**SecurityConfig**    
+```java
+
+```
+
+
+
+
+
+
+
+
