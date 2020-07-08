@@ -600,8 +600,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 * ```.addFilterBefore(filter, 먼저 시작될 필터) :``` 첫 번째 인자보다 먼저 시작될 필터를 등록합니다.    
 	* ```.addFilterBefore(filter, CsrfFilter.class) :```    
 	문자 인코딩 필터(```filter```) 보다 ```CsrfFilter```를 먼저 실행하도록 설정합니다.    
+    
+이것으로 기본 시큐리티 설정을 끝마쳤습니다.
+    
+___
 
+이제 ```OAuth2``` 인증 프로세스를 적용하기 위해    
+```addFilterBefore(oauth2Filter(), BasicAuthenticationFilter.class)``` 와 같은 필터를 추가하여       
+```oauth2Filter()```가 적용되도록 설정합니다.    
+           
+추가된 코드를 사용해 최종 완성된 ```SecurityConfig.java``` 는 아래와 같습니다.       
+   
+**SecurityConfig**
+```java
 
+```
 
 
 
