@@ -468,10 +468,134 @@ https://github.com/kwj1270/TIL_FIRST_SPRINGBOOT2/blob/master/02%20%EC%8A%A4%ED%9
     
 **SecurityConfig**    
 ```java
+package com.web.config;
 
+import com.web.oauth.ClientResources;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.web.filter.CharacterEncodingFilter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        CharacterEncodingFilter filter = new CharacterEncodingFilter();
+
+        http
+                .authorizeRequests()
+                    .antMatchers("/", "/login/**", "/css/**", "/images/**",
+                            "/js/**", "/console/**").permitAll() // 위 url들은 모두 사용 허가
+                    .anyRequest().authenticated()
+                .and()
+                    .headers().frameOptions().disable()
+                .and()
+                    .exceptionHandling()
+                    .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                .and()
+                    .formLogin()
+                    .successForwardUrl("/board/list")
+                .and()
+                    .logout()
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(true)
+                .and()
+                    .addFilterBefore(filter, CsrfFilter.class)
+                    .csrf().disable();
+    }
+
+    @Bean
+    @ConfigurationProperties("facebook")
+    public ClientResources facebook() {
+        return new ClientResources();
+    }
+
+    @Bean
+    @ConfigurationProperties("google")
+    public ClientResources google() {
+        return new ClientResources();
+    }
+
+    @Bean
+    @ConfigurationProperties("kakao")
+    public ClientResources kakao() {
+        return new ClientResources();
+    }
+
+}
 ```
+```java
 
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+```
+```@EnableWebSecurity``` 어노테이션은 웹에서 시큐리티 기능을 사용하겠다는 어노테이션입니다.       
+스프링 부트에서는 ```EnableWebSecurity```를 사용하면 자동 설정이 적용됩니다.         
+      
+```java
+ @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        CharacterEncodingFilter filter = new CharacterEncodingFilter();
+	.
+	.
+	.
+    }
+```
+자동 설정 그대로 사용할 수도 있지만 요청, 권한, 기타 설정에 대해서는 필수적으로 최적화한 설정이 들어가야합니다.       
+최적화 설정을 위해 ```WebSecurityConfigurerAdapter```를 상속받고         
+```protected void configure(HttpSecurity http) throws Exception {``` 메서드를 오버라이드하여 원하는 형식의 시큐리티 설정을 합니다.        
 
+```java
+        http
+                .authorizeRequests()
+                    .antMatchers("/", "/login/**", "/css/**", "/images/**",
+                            "/js/**", "/console/**").permitAll() // 위 url들은 모두 사용 허가
+                    .anyRequest().authenticated()
+                .and()
+                    .headers().frameOptions().disable()
+                .and()
+                    .exceptionHandling()
+                    .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                .and()
+                    .formLogin()
+                    .successForwardUrl("/board/list")
+                .and()
+                    .logout()
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/")
+                    .deleteCookies("JSESSIONID")
+                    .invalidateHttpSession(true)
+                .and()
+                    .addFilterBefore(filter, CsrfFilter.class)
+                    .csrf().disable();
+```
+다음은 ```configure()``` 메서드 설정 프로퍼티에 대한 설명입니다.      
+   
+* ```.authorizeRequests() :``` 인증 메커니즘을 요청한 ```HttpServletRequest``` 기반으로 설정합니다.     
+	* ```.antMatchers() :``` 요청 패턴을 리스트 형식으로 설정합니다.        
+	* ```.permitAll() :``` 설정한 리퀘스트 패턴을 누구나 접근할 수 있도록 허용합니다.      
+	* ```.anyRequest() :``` 설정한 요청 이외의 리퀘스트 요청을 표현합니다. (즉 위 url 제외)       
+	* ```.authenticated() :``` 해당 요청은 인증된 사용자만 할 수 있습니다.       
+* ```.headers() :``` 응답에 해당하는 header를 설정합니다. (설정하지 않으면 디폴트값으로 설정됩니다.)             
+	* ```.frameOptions().disable() :``` ```XFrameOptionsHeaderWriter```의 최적화 설정을 허용하지 않습니다.     
+* ```.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")) :```   
+인증의 진입 지점입니다.   
+인증되지 않은 사용자가 허용되지 않은 경로로 리퀘스트를 요청할 경우 ```/login```으로 이동됩니다.      
+* ```.formLogin().successForwardUrl("/board/list") :``` 로그인에 성공하면 설정된 경로로 포워딩합니다.    
+* ```.logout() :``` 로그아웃에 대한 설정을 할 수 있습니다.
+코드에서는 로그아웃이 수행될 ```URL(logoutUrl)```,    
+로그아웃이 성공했을 때 포워딩할 ```URL(logoutSuccessUrl)```,    
+로그아웃을 성공했을 때 삭제될 쿠키값```(deleteCookies)```,   
 
 
 
