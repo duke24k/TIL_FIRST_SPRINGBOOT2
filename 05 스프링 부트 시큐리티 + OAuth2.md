@@ -310,9 +310,9 @@ facebook:
   resource:
     userInfoUri: https://graph.facebook.com/me?fileds=id,name,email,link
     
-google :
-  client :
-    clientId : <your-client>
+google:
+  client:
+    clientId: <your-client>
     clientSecret: <your-secret>
     accessTokenUri: https://accounts.google.com/o/oauth2/token
     userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
@@ -325,9 +325,37 @@ kakao:
     clientId: <your-client-id>
     accessTokenUri: https://kauth.kakao.com/oauth/token
     userAuthorizationUri: https://kauth.kakao.com/oauth/authorize
-    resource:
+  resource:
       userInfoUri: https://kapi.kakao.com/v1/user/me
 ```
-정처기 끝나고 333
+```
+sns:
+	client:
+    		clientId:
+    		clientSecret:
+	resource:
+```
+선행 접두사를 소셜 미디어명으로 정했고 각 소셜 미디어마다 프로퍼티값을 ```client```와 ```resource```로 나누었습니다.      
+```client``` 프로퍼티는 소셜 미디어에서 토큰 인증을 위해 필요한 키 값을 제공합니다. ```(clinetId 와 clientSecret)```     
+```resource``` 프로퍼티는 사용자의 정보를 가져올 ```URL```을 제공합니다.      
+    
+```
+    userInfoUri: https://graph.facebook.com/me?fileds=id,name,email,link
+```
+페이스북은 특이하게 ```scope``` 프로퍼티를 사용하지 않고 ```userInfoUri```의 파라미터로 원하는 정보를 요청합니다.      
+원래 OAuth2 라이브러리는 ```client.scope``` 에 요청 정보를 담아서 가져갑니다.    
+페이스북 API 규격은 파라미터 형식으로 되어 있어서 ```client.scope``` 로 정보를 요청하면 적용되지 않는 문제가 있으므로   
+```fileds=id,name,email,link```와 같이 파라미터로 넣어서 처리했습니다.   
+    
+개인 마다의 ```clientId``` 와 ```clientSecret``` 이 따로 소유하고 있으므로 위 코드에서 알맞은 코드로 넣어줍시다.       
+___
+매핑 방식은 ```@ConfigurationProperties``` 어노테이션을 사용하며, 소셜 미디어에 따라 각각의 프로퍼티값을 바인딩할 수 있습니다.   
+    
+**ClientResources**    
+```java
+
+```
+
+
 
 
