@@ -764,6 +764,53 @@ ___
 똑같은 이름으로 오버라이드한 첫 번째 ```private Filter oauth2Filter(){``` 메서드는 각 소셜 미디어 필터를 리스트 형식으로 한꺼번에 설정하여 반환합니다.      
        
 ___
+
+```java
+    private Filter oauth2Filter(ClientResources client, String path, SocialType socialType) {
+        OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
+        OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oAuth2ClientContext);
+        filter.setRestTemplate(template);
+        filter.setTokenServices(new UserTokenService(client, socialType));
+        filter.setAuthenticationSuccessHandler((request, response, authentication)
+                -> response.sendRedirect("/" + socialType.getValue() + "/complete"));
+        filter.setAuthenticationFailureHandler((request, response, exception)
+                -> response.sendRedirect("/error"));
+        return filter;
+    }
+```
+```java
+        OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
+```
+인증이 수행될 경로를 넣어 OAuth2 클라이언트용 인증 처리 필터를 생성합니다. ```("/login/facebook") 등등```       
+   
+```java
+        OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oAuth2ClientContext);
+	filter.setRestTemplate(template);
+```
+권한 서버와의 통신을 위해 ```OAuth2RestTemplate```을 생성합니다.      
+이를 생성하기 위해선 ```client``` 프로퍼티 정보와 ```oAuth2ClientContext``` 정보가 필요합니다.         
+변수 ```client```는 전체 프로퍼티를 담고 있는 ```oAuth2ClientContext``` 의 객체이다. (이름이 헷갈려서)     
+    
+```java
+        filter.setTokenServices(new UserTokenService(client, socialType));
+```    
+User의 권한을 최적화해서 생성하고자 ```UserInfoTokenServices```를 상속받은 ```UserTokenService```를 생성했습니다.    
+```OAuth2 AccessToken``` 검증을 위해 생성한 ```UserTokenService``` 를 필터의 토큰 서비스로 등록합니다.       
+(이는 직접 구현해야 되는 클래스이다. -> 밑에 구현 코드가 나와있다.)       
+    
+```java
+        filter.setAuthenticationSuccessHandler((request, response, authentication)
+                -> response.sendRedirect("/" + socialType.getValue() + "/complete"));
+```
+인증이 성공적으로 이루어지면 필터에 리다이렉트될 URL을 설정합니다.    
+
+```java
+        filter.setAuthenticationFailureHandler((request, response, exception)
+                -> response.sendRedirect("/error"));
+```
+인증이 실패하면 필터에 리다이렉트될 URL을 설정합니다.        
+    
+___
     
 **UserTokenService**      
 ```java
