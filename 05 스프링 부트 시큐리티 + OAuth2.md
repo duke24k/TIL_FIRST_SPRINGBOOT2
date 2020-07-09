@@ -731,7 +731,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 }
 ```
-     
+OAuth2 설정도 시큐리티의 ```@EnableWebSecurity```를 사용했던 것과 마찬가지로       
+```@EnableOAuth2Client``` 어노테이션을 클래스에 붙여서 적용합니다.       
+
+
+참고로 ```@EnableOAuth2Client``` 이외에도       
+OAuth2의 권한 부여 서버와 리소스 서버를 만드는 설정 어노테이션인        
+```@EnableAuthorizationServer```       
+```@EnableResourceServer``` 도 있습니다.     
+
+앞으로 권한 및 ```User``` 정보를 가져오는 서버를 직접 구성하지 않고 각 소셜 미디어의 서버를 사용하기에 두 어노테이션을 사용할 필요는 없습니다.   
+    
+___
+    
+```java
+    @Bean
+    public FilterRegistrationBean oauth2ClientFilterRegistration(OAuth2ClientContextFilter filter){
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(filter);
+        registration.setOrder(-100);
+        return registration;
+    }
+```   
+OAuth2 클라이언트용 시큐리티 필터인 ```OAuth2ClientContextFilter```를 불러와서 올바른 순서로 필터가 동작하도록 설정합니다.            
+또한 스프링 시큐리티 필터가 실행되기 전에 충분히 낮은 순서로 필터를 등록합니다.        
+    
+___   
+    
+```oauth2Filter()``` 메서드는 오버로드하여 두 개가 정의되어 있습니다.           
+두번째 ```private Filter oauth2Filter(ClientResources client, String path, SocialType socialType){``` 메서드로는        
+각 소셜 미디어 타입을 받아서 필터 설정을 할 수 있습니다.       
+똑같은 이름으로 오버라이드한 첫 번째 ```private Filter oauth2Filter(){``` 메서드는 각 소셜 미디어 필터를 리스트 형식으로 한꺼번에 설정하여 반환합니다.      
+       
+___
+    
 **UserTokenService**      
 ```java
 package com.web.oauth;
@@ -766,9 +799,7 @@ public class UserTokenService extends UserInfoTokenServices {
             return AuthorityUtils.createAuthorityList(this.socialType);
         }
     }
-    
 }
-
 ```
 
 
