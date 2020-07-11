@@ -898,8 +898,64 @@ ___
    
 우리는 SocialType 클래스와 UserTokenService 클래스를 이용하여  
 SocialType을 OAuth2AuthoritiesExtractor 클래스에 넘겨주면 권한 네이밍을 알아서 일괄적으로 처리하도록 설정했습니다.   
+     
+## 4.3. 어노테이션 기반으로 User 정보 불러오기    
 
+지금까지 시큐리티와 ```OAuth2```를 사용하여 기본적인 인증과 권한 부여 처리를 설정했습니다.      
+이 절에서는 인증된 ```User``` 의 개인정보를 저장하고 직접 ```User``` 정보를 불러오겠습니다.          
+보통 ```User``` 와 관련된 개인정보는 세션에 저장합니다.         
+      
+```java
+        filter.setAuthenticationSuccessHandler((request, response, authentication)
+                -> response.sendRedirect("/" + socialType.getValue() + "/complete"));
+```
+인증 프로세스가 최종까지 완료되면 설정된 성공 URL로 이동합니다.         
+성공 URL은 SecurityConfig 클래스에서 **인증 완료** 후 설정했습니다.            
+**인증 완료**란 리소스 서버에서 User 에 대한 정보까지 챙겨왔다는 것을 의미합니다.      
+그 정보는 아마 ```SecurityContextHolder``` 클래스에 저장되어 있을 것입니다.   
 
+인증된 User 정보를 불러오는 기능을 ```LoginController```를 생성해서 구현해보겠습니다.      
 
+```java
+package com.web.controller;
+
+import com.web.domain.User;
+import com.web.domain.enums.SocialType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@Controller
+public class LoginController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping(value = "/{facebook|google|kakao}/complete")
+    public String loginComplete(HttpSession session) {
+        OAuth2Authentication authentication =
+                (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+
+        Map<String, String> map = (HashMap<String, String>) authentication.getUserAuthentication().getDetails();
+        session.setAttribute("user", User.builder()
+                .name(map.get("name"))
+                .email(map.get("email"))
+                .principal(map.get("id"))
+                .socialType(SocialType.FACEBOOK)
+                .createdDate(LocalDateTime.now())
+                .build());
+        return "redirect:/board/list";
+    }
+}
+
+```
 
 
