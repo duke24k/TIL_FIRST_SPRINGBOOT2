@@ -811,6 +811,10 @@ User의 권한을 최적화해서 생성하고자 ```UserInfoTokenServices```를
 인증이 실패하면 필터에 리다이렉트될 URL을 설정합니다.        
     
 ___
+위에서 등장한 User 정보를 비동기 통신으로 가져오는 REST Service 인       
+```UserInfoTokenServices``` 를 커스터마이징할 ```UserTokenService``` 를 생성해봅시다.        
+소셜 미디어 원격 서버와 통신하여 User 정보를 가져오는 로직은 이미 ```UserInfoTokenServices```에 구현되어 있어        
+```UserTokenService```에서는 이를 상속받아 통신에 필요한 값을 넣어주어 설정하면됩니다.      
     
 **UserTokenService**      
 ```java
@@ -848,6 +852,14 @@ public class UserTokenService extends UserInfoTokenServices {
     }
 }
 ```
+UserInfoTokenServices를 상속받은 UserTokenService 클래스를 생성했습니다.   
+UserInfoTokenServices는 스프링 시큐리티 OAuth2에서 제공하는 클래스이며 User 정보를 얻어오기 위해 소셜 서버와 통신하는 역할을 수행합니다.     
+**이때 URI와 clientId 정보가 필요합니다.**    
+     
+우리는 3개의 소셜 미디어 정보를 SocialType을 기준으로 관리할 것이기 때문에 약간의 커스터마이징이 필요했습니다.    
+UserInfoTokenServices 생성자에서 super() 를 사용하여 각각의 소셜 미디어 정보를 주입할 수 있도록 합니다.   
+
+   
 
 
 
