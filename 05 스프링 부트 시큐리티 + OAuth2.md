@@ -955,7 +955,16 @@ public class LoginController {
         return "redirect:/board/list";
     }
 }
-
 ```
+      
+```java
+        filter.setAuthenticationSuccessHandler((request, response, authentication)
+                -> response.sendRedirect("/" + socialType.getValue() + "/complete"));
+_________________________________________________________________________________________________________
 
-
+    @GetMapping(value = "/{facebook|google|kakao}/complete")
+    public String loginComplete(HttpSession session) {
+		
+```
+인증이 성공적으로 처리된 이후에 리다이렉트되는 경로입니다.    
+허용하는 요청의 URL 매핑을 ```/facebook/complete/```, ```/google/complete```, ```/kakao/complete``` 로 제한합니다.     
