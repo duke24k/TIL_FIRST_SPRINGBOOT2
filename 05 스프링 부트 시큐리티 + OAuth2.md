@@ -855,11 +855,50 @@ public class UserTokenService extends UserInfoTokenServices {
 UserInfoTokenServices를 상속받은 UserTokenService 클래스를 생성했습니다.   
 UserInfoTokenServices는 스프링 시큐리티 OAuth2에서 제공하는 클래스이며 User 정보를 얻어오기 위해 소셜 서버와 통신하는 역할을 수행합니다.     
 **이때 URI와 clientId 정보가 필요합니다.**    
-     
-우리는 3개의 소셜 미디어 정보를 SocialType을 기준으로 관리할 것이기 때문에 약간의 커스터마이징이 필요했습니다.    
-UserInfoTokenServices 생성자에서 super() 를 사용하여 각각의 소셜 미디어 정보를 주입할 수 있도록 합니다.   
+        
+우리는 3개의 소셜 미디어 정보를 SocialType을 기준으로 관리할 것이기 때문에 약간의 커스터마이징이 필요했습니다.        
+UserInfoTokenServices 생성자에서 super() 를 사용하여 각각의 소셜 미디어 정보를 주입할 수 있도록 합니다.      
 
+```java
+    public String getRoleType(){
+        return ROLE_PREFIX + name.toUpperCase();
+    }
+```
+권한 생성 방식을 ```ROLE_FACEBOOK```과 같은 형식으로 하기 위해서 SocialType의 getRoleType() 메서드를 사용했습니다.             
+facebook, google, kakao 등과 같은 소셜 서비스의 이름을 대문자로 변환한 뒤 접두사로 ```ROLE_```을 추가한 형태입니다.    
+    
+___
+     
+```java
+    public static class OAuth2AuthoritiesExtractor implements AuthoritiesExtractor {
+
+        private String socialType;
+
+        public OAuth2AuthoritiesExtractor(SocialType socialType) {
+            this.socialType = socialType.getRoleType();
+        }
+
+        @Override
+        public List<GrantedAuthority> extractAuthorities(Map<String, Object> map) {
+            return AuthorityUtils.createAuthorityList(this.socialType);
+        }
+    }
+```
+그리고 ```AuthoritiesExtractor``` 인터페이스를 구현한 **내부 클래스**인 ```OAuth2AuthoritiesExtractor``` 를 생성했습니다.       
+    
+```java
+        @Override
+        public List<GrantedAuthority> extractAuthorities(Map<String, Object> map) {
+            return AuthorityUtils.createAuthorityList(this.socialType);
+        }
+```  
+```extractAuthorities()``` 메서드를 오버라이딩하여 권한을 리스트 형식으로 생성하여 반환하도록 합니다.        
+```OAuth2AuthoritiesExtractor```클래스는 ```UserTokenService``` 의 부모 클래스인           
+```UserInfoTokenServices```의 ```setAuthoritiesExtractor``` 메서드를 이용해서 등록합니다.           
    
+우리는 SocialType 클래스와 UserTokenService 클래스를 이용하여  
+SocialType을 OAuth2AuthoritiesExtractor 클래스에 넘겨주면 권한 네이밍을 알아서 일괄적으로 처리하도록 설정했습니다.   
+
 
 
 
