@@ -977,7 +977,7 @@ ___
 
 ```SecurityContextHoldr``` 에서 인증된 정보를 ```OAuth2Authentication``` 형태로 받아옵니다.         
 ```OAuth2Authentication``` 은 기본적인 인증에 대한 정보뿐만 아니라 OAuth2인증과 관련된 정보도 함께 제공합니다.   
-   
+    
 ___
 
 ```java
@@ -996,3 +996,6 @@ ___
                 .createdDate(LocalDateTime.now())
                 .build());
 ```
+세션에 빌더를 사용하여 인증된 User 정보를 User 객체로 변환하여 저장합니다.    
+   
+       
