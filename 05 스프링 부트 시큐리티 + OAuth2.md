@@ -1098,10 +1098,128 @@ public interface HandlerMethodArgumentResolver {
       
 ```HandlerMethodArgumentResolver``` 를 인터페이스를 구현하여 현재 커뮤니티 애플리케이션에 적용해보겠습니다.         
 ```HandlerMethodArgumentResolver``` 를 구현한 ```UserArgumentResolver``` 클래스를 다음과 같이 생성합니다.     
-  
+
+1. ```/com/web```에서 ```resolver``` 디렉토리를 만들어준다.          
+2. ```/com/web/resolver``` 에서 ```UserArgumentResolver``` 클래스를 생성해준다.            
+3. ```implements``` 로 ```HandlerMethodArgumentResolver``` 를 추상 메소드를 임시로 구현해주자      
+    
 **UserArgumentResolver** 
 ```java
+package com.web.resolver;
 
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return false;
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        return null;
+    }
+}
 ```
-   
+이제 이렇게 생성된 ```UserArgumentResolver```를 필터에서 동작할 수 있도록 등록해보겠습니다.       
+웹 애플리케이션 서버를 구동시켜주는 ```Application``` 클래스에 다음과 같은 코드를 입력해줍시다. (본인의 Application 클래스)   
+     
+**SpringBootCommunityWebApplication**     
+```java
+package com.web;
 
+import com.web.domain.Board;
+import com.web.domain.User;
+import com.web.domain.enums.BoardType;
+import com.web.repository.BoardRepository;
+import com.web.repository.UserRepository;
+import com.web.resolver.UserArgumentResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.IntStream;
+
+@SpringBootApplication
+public class SpringBootCommunityWebApplication extends WebMvcConfigurerAdapter {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootCommunityWebApplication.class, args);
+	}
+	
+	@Autowired
+	UserArgumentResolver userArgumentResolver;
+	
+	@Override
+	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers){
+		argumentResolvers.add(userArgumentResolver);
+	}
+	
+	@Bean
+	public CommandLineRunner runner(UserRepository userRepository, BoardRepository boardRepository)
+	throws Exception{
+		return (args -> {
+			User user = userRepository.save(User.builder()
+					.name("havi")
+					.password("test")
+					.email("havi@gmail.com")
+					.createdDate(LocalDateTime.now())
+					.build()
+			);
+
+			IntStream.rangeClosed(1,200).forEach(index -> {
+				boardRepository.save(Board.builder()
+						.title("게시글" + index)
+						.subTitle("순서" + index)
+						.content("콘텐츠")
+						.boardType(BoardType.free)
+						.createdDate(LocalDateTime.now())
+						.updatedDate(LocalDateTime.now())
+						.user(user)
+						.build());
+			});
+
+		});
+	}
+}
+```  
+```UserArgumentResolver``` 클래스를 적용하려면 ```WebMvcConfigurerAdapter```를 상속받아야 합니다.          
+```WebMvcConfigurerAdapter``` 내부에 구현된 ```addArgumentResolvers()``` 메서드를 오버라이드 하여           
+```UserArgumentResolver```를 추가시켜줬습니다.            
+         
+```UserArgumentResolver```를 등록했으니 앞서 마저 하지 못했던 내부 로직을 구현해보겠습니다.           
+먼저 ```@SocialUser```라는 어노테이션을 만들겠습니다.             
+```User``` 타입만 검사하도록 만들 수도 있지만,         
+소셜미디어에 인증된 ```User```를 가져온다는 사실을 더 명확하게 표현하기 위해 파라미터용 어노테이션을 추가적으로 생성하겠습니다.       
+       
+1. ```/com/web``` 에서 ```annotation``` 디렉토리를 생성해준다.    
+2. ```/com/web/annotation``` 디렉토리에서 ```SocialUser.annotation``` 를 생성해준다.
+3. 아래와 같은 코드를 입력해준다.      
+    
+**SocialUser.annotation**
+```java
+package com.web.annotaion;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SocialUser {
+}
+```   
+     
+```UserArgumentResolver```의 ```supportsParameter()``` 메서드의 파라미터 안에서 ```@SocialUser```를 명시했는지도 체크 하겠습니다.      
