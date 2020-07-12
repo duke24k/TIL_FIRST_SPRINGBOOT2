@@ -1046,4 +1046,62 @@ public class LoginController {
     }
 
 }
+```  
+이전에 비해 코드가 확연히 줄어들었습니다.      
+```@SocialUser User user``` 형식의 간단한 방법으로 인증된 User 객체를 가져올 수 있게 되었습니다.     
+게다가 코드의 재사용성에 있어서도 가장 큰 이득을 얻게되었습니다.      
+       
+이제 위와 같은 코드가 정상적으로 작동하도록 AOP를 구현해보겠습니다.            
+파라미터로 AOP를 구현하는 데에는 2가지 방법이 있습니다.             
+         
+1. 직접 AOP 로직을 작성하는 방법     
+2. 스프링 전략 인터페이스 중 하나인 ```HandlerMappingArgumentResolver```를 사용하는 방법      
+    
+저희는 ```HandlerMappingArgumentResolver``` 인터페이스를 사용할 겁니다.       
+이 인터페이스는 **전략 패턴** 의 일종으로 컨트롤러 메소드에서 특정 조건에 해당하는 파라미터가 있으면         
+생성한 로직을 처리한 후 해당 파라미터에 바인딩해주는 전략 인터페이스입니다.     
+따라서 AOP로 모든 메서드를 일일이 찾아보면서 파라미터에 바인딩하는 방법보다 훨씬 빠르고 만들기도 편합니다.   
+    
 ```
+특정 전략을 인터페이스로 만들고 이를 여러 전략 객체로 구현합니다.   
+그리고 현재 클래스 레벨에서 전략 인터페이스를 의존하도록 합니다.   
+이런식으로 느슨하게 연결된 전략 클래스를 찾아 의존하도록 하는 방식이 전략 패턴입니다.   
+```
+___    
+    
+먼저 ```HandlerMappingArgumentResolver``` 인터페이스를 살펴보겠습니다.   
+
+**HandlerMappingArgumentResolver**
+```java
+package org.springframework.web.method.support;
+
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+
+public interface HandlerMethodArgumentResolver {
+
+	boolean supportsParameter(MethodParameter parameter);
+	Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception;
+
+}
+```
+```HandlerMappingArgumentResolver``` 인터페이스는 2가지 메서드를 제공합니다.     
+
+1. **supportsParameter() :** ```HandlerMethodArgumentResolver``` 가 해당하는 파라미터를 지원할지 여부를 반환합니다.   
+```true``` 를 반환하면 ```resolveArgument``` 메서드가 수행됩니다.      
+여기서 수행된 ```MethodParameter parameter```는 메소드 파라미터냐 아니냐의 기준으로 사용되는 데이터같다.     
+   
+2. **resolveArgument() :** 파라미터의 인자값에 대한 정보를 바탕으로 실제 객체를 생성하여 해당 파라미터 객체에 바인딩합니다.  
+      
+```HandlerMethodArgumentResolver``` 를 인터페이스를 구현하여 현재 커뮤니티 애플리케이션에 적용해보겠습니다.         
+```HandlerMethodArgumentResolver``` 를 구현한 ```UserArgumentResolver``` 클래스를 다음과 같이 생성합니다.     
+  
+**UserArgumentResolver** 
+```java
+
+```
+   
+
