@@ -967,4 +967,13 @@ ________________________________________________________________________________
 		
 ```
 인증이 성공적으로 처리된 이후에 리다이렉트되는 경로입니다.    
-허용하는 요청의 URL 매핑을 ```/facebook/complete/```, ```/google/complete```, ```/kakao/complete``` 로 제한합니다.     
+허용하는 요청의 URL 매핑을 ```/facebook/complete/```, ```/google/complete```, ```/kakao/complete``` 로 제한합니다.          
+
+```java
+        OAuth2Authentication authentication =
+                (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+```
+
+```SecurityContextHoldr``` 에서 인증된 정보를 ```OAuth2Authentication``` 형태로 받아옵니다.         
+```OAuth2Authentication```  
+ 
