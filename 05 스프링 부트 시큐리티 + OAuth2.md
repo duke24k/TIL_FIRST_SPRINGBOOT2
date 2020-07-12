@@ -1007,3 +1007,43 @@ User 정보를 가져와서 세션에 저장하는데 성공했습니다.
 이제 우리는 구글이나 카카오로 인증받은 User를 처리하는 로직을 추가해야합니다.      
 그리고 카카오 같은 경우는 ```getDetails()```를 사용하여 개인정보를 가져와도         
 해당 키 값이 다른 소셜미디어와 다르기 때문에 이를 따로 처리해주는 코드도 작성해주어야 합니다.        
+    
+그럼 어떻게 처리를 해야할까요?    
+서비스를 새로 만들어서 인증 완료 후 세션처리를 모두 수행하도록 할까요? -> 좋은 방법이긴 합니다!!!  
+하지만 따로 서비스 계층을 일일이 생성할 필요없이 **AOP를 이용해서 특정한 파라미터 로직으로 만들어놓으면 User 객체에 인증된 정보를 가져올 수 있습니다.**      
+AOP 로직을 만들어 놓으면 User 정보를 가져오는 방법에 신경 쓸 필요가 없어지게 되고 코드를 반복해서 사용하지 않아도 됩니다.       
+    
+그럼 AOP를 적용한 코드는 어떻게 생겼을까요?      
+아래 코드와 같이 LoginController를 수정해줍시다.   
+
+**LoginController**    
+```java
+package com.web.controller;
+
+import com.web.domain.User;
+import com.web.domain.enums.SocialType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+@Controller
+public class LoginController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+    @GetMapping(value = "/{facebook|google|kakao}/complete")
+    public String loginComplete(@SocialUser User user) {
+        return "redirect:/board/list";
+    }
+
+}
+```
