@@ -1223,3 +1223,72 @@ public @interface SocialUser {
 ```   
      
 ```UserArgumentResolver```의 ```supportsParameter()``` 메서드의 파라미터 안에서 ```@SocialUser```를 명시했는지도 체크 하겠습니다.      
+    
+**UserArgumentResolver**         
+```java
+package com.web.resolver;
+
+import com.web.annotaion.SocialUser;
+import com.web.domain.User;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.getParameterAnnotation(SocialUser.class) != null &&
+                parameter.getParameterType().equals(User.class);
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        return null;
+    }
+}
+```     
+```MethodParameter```로 해당 파라미터의 정보를 받게 됩니다.    
+이제 파라미터에 **@SocialUser 어노테이션이 있고 타입이 User인 파라미터만 true를 반환할 것입니다.**     
+```supportParameter()``` 메서드에서 처음 한 번 체크된 부분은 캐시되어 이후의 동일한 호출 시에는 체크되지 않고 캐시된 결과값을 바로 반환합니다.    
+(개인적인 생각인데 필터의 단점을 이런식으로 극복하지 않았나 싶습니다.)    
+      
+```resolveArgument()``` 메서드는 검증이 완료된 파라미터 정보를 받습니다.      
+이미 검증이 되어 세션에 해당 User 객체가 있으면 User 객체를 구성하는 로직을 수행하지 않도록 세션을 먼저 확인하는 코드를 구현하겠습니다.            
+세션은 ```RequestContextHandler```를 사용해서 가져올 수 있습니다.      
+
+```java
+package com.web.resolver;
+
+import com.web.annotaion.SocialUser;
+import com.web.domain.User;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
+
+import javax.servlet.http.HttpSession;
+
+public class UserArgumentResolver implements HandlerMethodArgumentResolver {
+
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return parameter.getParameterAnnotation(SocialUser.class) != null &&
+                parameter.getParameterType().equals(User.class);
+    }
+
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+
+        HttpSession session = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest().getSession();
+        User user = (User) session.getAttribute("user");
+
+        return getUser(user, session);
+    }
+}
+```
