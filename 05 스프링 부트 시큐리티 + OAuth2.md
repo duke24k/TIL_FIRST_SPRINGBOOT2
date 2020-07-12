@@ -1258,7 +1258,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 ```resolveArgument()``` 메서드는 검증이 완료된 파라미터 정보를 받습니다.      
 이미 검증이 되어 세션에 해당 User 객체가 있으면 User 객체를 구성하는 로직을 수행하지 않도록 세션을 먼저 확인하는 코드를 구현하겠습니다.            
 세션은 ```RequestContextHandler```를 사용해서 가져올 수 있습니다.      
-
+    
+**UserArgumentResolver**
 ```java
 package com.web.resolver;
 
@@ -1291,4 +1292,11 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         return getUser(user, session);
     }
 }
+```
+세션에 인증된 User 객체를 가져옵니다.   
+getUser() 메서드를 만들어 세션에서 가져온 User 객체가 없으면 새로 생성하고 이미 있다면 바로 사용하도록 반환할 것입니다.   
+getUser() 메서드는 인증된 User 객체를 만들어 권한까지 부여하는 코드이므로 차근차근 알아보면서 구현해보도록 하겠습니다.  
+    
+**UserArgumentResolver**   
+```java
 ```
